@@ -809,13 +809,8 @@ impl eframe::App for ImageToolApp {
                                     );
 
                                     if response.lost_focus()
-                                        && ui.input(|i| i.key_pressed(egui::Key::Enter))
+                                        || ui.input(|i| i.key_pressed(egui::Key::Enter))
                                     {
-                                        if self.save_editing(&ctx_clone) {
-                                            self.status_message =
-                                                format!("已重命名: {}", self.edit_buffer);
-                                        }
-                                    } else if response.lost_focus() {
                                         if self.save_editing(&ctx_clone) {
                                             self.status_message =
                                                 format!("已重命名: {}", self.edit_buffer);
