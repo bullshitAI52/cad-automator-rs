@@ -1,15 +1,15 @@
 [package]
 name = "image-info-tool"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["zwm"]
 description = "图片信息批量处理工具（Rust重构版）"
-repository = "https://github.com/YOUR_USERNAME/image-info-tool"
+repository = "https://github.com/bullshitAI52/image-info-tool-rs"
 license = "MIT OR Apache-2.0"
 keywords = ["image", "batch", "rename", "cmyk", "tool"]
 categories = ["command-line-utilities", "gui", "multimedia::images"]
 readme = "README.md"
-homepage = "https://github.com/YOUR_USERNAME/image-info-tool"
+homepage = "https://github.com/bullshitAI52/image-info-tool-rs"
 
 [package.metadata.docs.rs]
 all-features = true

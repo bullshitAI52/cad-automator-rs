@@ -1,12 +1,16 @@
-name: CI
+name: CI/CD
+
+permissions:
+  contents: write
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ main, master ]
-  release:
-    types: [created]
+    branches: [ main ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,125 +21,66 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
-      
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      
+      - uses: Swatinem/rust-cache@v2
       - name: Check formatting
         run: cargo fmt -- --check
-      
-      - name: Clippy check
+      - name: Clippy
         run: cargo clippy -- -D warnings
-      
-      - name: Run tests
+      - name: Test
         run: cargo test --verbose
 
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+  build-and-release:
+    name: Build & Release
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: image-info-tool-linux
+            artifact_name: image-info-tool-linux-x86_64.tar.gz
             binary_name: image-info-tool
+            asset_content_type: application/gzip
           - os: macos-latest
-            artifact_name: image-info-tool-macos
+            artifact_name: image-info-tool-macos-x86_64.tar.gz
             binary_name: image-info-tool
+            asset_content_type: application/gzip
           - os: windows-latest
-            artifact_name: image-info-tool-windows
+            artifact_name: image-info-tool-windows-x86_64.zip
             binary_name: image-info-tool.exe
-    
+            asset_content_type: application/zip
+
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Build release
         run: cargo build --release --verbose
-      
-      - name: Strip binary (Linux/macOS)
+
+      - name: Strip binary (Unix)
+        if: matrix.os != 'windows-latest'
+        run: strip target/release/${{ matrix.binary_name }}
+
+      - name: Package (Unix)
         if: matrix.os != 'windows-latest'
         run: |
-          strip target/release/${{ matrix.binary_name }}
-      
-      - name: Package binary
-        shell: bash
-        run: |
-          mkdir -p dist
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp target/release/${{ matrix.binary_name }} dist/
-            7z a -tzip ${{ matrix.artifact_name }}.zip dist/*
-          else
-            cp target/release/${{ matrix.binary_name }} dist/
-            tar czf ${{ matrix.artifact_name }}.tar.gz -C dist .
-          fi
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_name }}.*
+          tar -czf ${{ matrix.artifact_name }} -C target/release ${{ matrix.binary_name }}
 
-  release:
-    name: Create Release
-    needs: [test, build]
-    if: github.event_name == 'release' && github.event.action == 'created'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      
-      - name: Display structure of downloaded files
-        run: find artifacts -type f
-      
-      - name: Create Release Assets
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
         run: |
-          mkdir -p release_assets
-          
-          # Windows
-          find artifacts -name "image-info-tool-windows*" -type f -exec cp {} release_assets/windows.zip \;
-          
-          # macOS
-          find artifacts -name "image-info-tool-macos*" -type f -exec cp {} release_assets/macos.tar.gz \;
-          
-          # Linux
-          find artifacts -name "image-info-tool-linux*" -type f -exec cp {} release_assets/linux.tar.gz \;
-          
-          # Create SHA256 checksums
-          cd release_assets
-          for file in *; do
-            sha256sum "$file" > "$file.sha256"
-          done
-      
-      - name: Upload Release Assets
+          Compress-Archive -Path target/release/${{ matrix.binary_name }} -DestinationPath ${{ matrix.artifact_name }}
+
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: release_assets/*
-          draft: false
-          prerelease: false
+          files: ${{ matrix.artifact_name }}
+          generate_release_notes: true
