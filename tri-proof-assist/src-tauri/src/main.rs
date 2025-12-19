@@ -83,13 +83,37 @@ async fn read_file(path: String) -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn read_image_as_base64(path: String) -> Result<String, String> {
+    use base64::{Engine as _, engine::general_purpose};
+    
+    println!("Reading image from: {}", path);
+    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    let base64 = general_purpose::STANDARD.encode(&bytes);
+    
+    // Detect MIME type from extension
+    let mime_type = if path.ends_with(".png") {
+        "image/png"
+    } else if path.ends_with(".jpg") || path.ends_with(".jpeg") {
+        "image/jpeg"
+    } else if path.ends_with(".gif") {
+        "image/gif"
+    } else if path.ends_with(".svg") {
+        "image/svg+xml"
+    } else {
+        "image/png" // default
+    };
+    
+    Ok(format!("data:{};base64,{}", mime_type, base64))
+}
+
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, generate_problem, save_file, read_file])
+        .invoke_handler(tauri::generate_handler![greet, generate_problem, save_file, read_file, read_image_as_base64])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
