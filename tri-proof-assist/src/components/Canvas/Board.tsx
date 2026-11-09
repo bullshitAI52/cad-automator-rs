@@ -115,21 +115,21 @@ const Board: React.FC = () => {
             steps: [
                 { because: '三角形三个角加起来是180°', therefore: '∠A + ∠B + ∠C = 180°' },
                 { because: '∠A = 60°，∠B = 70°', therefore: '∠C = 180° - 60° - 70° = 50°' }
-                
+                            ]
         },
         {
             name: '长方形周长',
             steps: [
                 { because: '长8厘米，宽5厘米', therefore: '长方形周长 = (长 + 宽) × 2' },
                 { because: '(8 + 5) × 2 = 26', therefore: '周长是26厘米' }
-                
+                            ]
         },
         {
             name: '正方形面积',
             steps: [
                 { because: '边长是6厘米', therefore: '正方形面积 = 边长 × 边长' },
                 { because: '6 × 6 = 36', therefore: '面积是36平方厘米' }
-                
+                            ]
         }
     ];
 
