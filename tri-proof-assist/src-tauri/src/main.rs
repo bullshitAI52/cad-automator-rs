@@ -7,9 +7,13 @@ use serde_json::json;
 use std::env;
 
 #[tauri::command]
-async fn generate_problem(topic: String, difficulty: String, api_key: String) -> Result<String, String> {
+async fn generate_problem(
+    topic: String,
+    difficulty: String,
+    api_key: String,
+) -> Result<String, String> {
     println!("生成几何证明思路: {} ({})", topic, difficulty);
-    
+
     // 检查API Key
     let final_api_key = if !api_key.is_empty() {
         api_key
@@ -58,7 +62,7 @@ async fn generate_problem(topic: String, difficulty: String, api_key: String) ->
                     {"because": "使用几何定理", "therefore": "得到中间结论"},
                     {"because": "综合以上结论", "therefore": "证明完成"}
                 ]
-            })
+            }),
         };
         return Ok(mock_proof.to_string());
     }
@@ -89,9 +93,12 @@ async fn generate_problem(topic: String, difficulty: String, api_key: String) ->
             {{\"because\": \"AB = DE\", \"therefore\": \"对应边相等\"}},
             {{\"because\": \"∠A = ∠D\", \"therefore\": \"对应角相等\"}}
           ]
-        }}", topic, difficulty);
+        }}",
+        topic, difficulty
+    );
 
-    let res = client.post("https://api.deepseek.com/v1/chat/completions")
+    let res = client
+        .post("https://api.deepseek.com/v1/chat/completions")
         .header("Authorization", format!("Bearer {}", final_api_key))
         .header("Content-Type", "application/json")
         .json(&json!({
@@ -106,22 +113,22 @@ async fn generate_problem(topic: String, difficulty: String, api_key: String) ->
 
     if res.status().is_success() {
         let response_text = res.text().await.map_err(|e| e.to_string())?;
-        
+
         // 解析API响应
-        let response_json: serde_json::Value = serde_json::from_str(&response_text)
-            .map_err(|e| format!("解析API响应失败: {}", e))?;
-        
+        let response_json: serde_json::Value =
+            serde_json::from_str(&response_text).map_err(|e| format!("解析API响应失败: {}", e))?;
+
         // 提取AI返回的内容
         let ai_content = response_json["choices"][0]["message"]["content"]
             .as_str()
             .ok_or("API响应格式错误")?;
-        
+
         // 尝试解析AI返回的JSON
         match serde_json::from_str::<serde_json::Value>(ai_content) {
             Ok(parsed_content) => {
-                // 如果AI返回了有效的JSON，直接使用
+                                // 如果AI返回了有效的JSON，直接使用
                 Ok(parsed_content.to_string())
-            },
+            }
             Err(_) => {
                 // 如果AI没有返回有效JSON，包装成标准格式
                 let wrapped_response = json!({
@@ -153,12 +160,12 @@ async fn read_file(path: String) -> Result<String, String> {
 
 #[tauri::command]
 async fn read_image_as_base64(path: String) -> Result<String, String> {
-    use base64::{Engine as _, engine::general_purpose};
-    
+    use base64::{engine::general_purpose, Engine as _};
+
     println!("Reading image from: {}", path);
     let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
     let base64 = general_purpose::STANDARD.encode(&bytes);
-    
+
     // Detect MIME type from extension
     let mime_type = if path.ends_with(".png") {
         "image/png"
@@ -171,7 +178,7 @@ async fn read_image_as_base64(path: String) -> Result<String, String> {
     } else {
         "image/png" // default
     };
-    
+
     Ok(format!("data:{};base64,{}", mime_type, base64))
 }
 
@@ -182,7 +189,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn save_image_from_base64(path: String, base64_data: String) -> Result<(), String> {
-    use base64::{Engine as _, engine::general_purpose};
+    use base64::{engine::general_purpose, Engine as _};
     use std::io::Write;
 
     println!("Saving image to: {}", path);
@@ -200,17 +207,17 @@ async fn save_image_from_base64(path: String, base64_data: String) -> Result<(),
 
     let mut file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
     file.write_all(&bytes).map_err(|e| e.to_string())?;
-    
+
     Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            greet, 
-            generate_problem, 
-            save_file, 
-            read_file, 
+            greet,
+            generate_problem,
+            save_file,
+            read_file,
             read_image_as_base64,
             save_image_from_base64
         ])
