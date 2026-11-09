@@ -126,7 +126,7 @@ async fn generate_problem(
         // 尝试解析AI返回的JSON
         match serde_json::from_str::<serde_json::Value>(ai_content) {
             Ok(parsed_content) => {
-                                // 如果AI返回了有效的JSON，直接使用
+                // 如果AI返回了有效的JSON，直接使用
                 Ok(parsed_content.to_string())
             }
             Err(_) => {
