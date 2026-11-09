@@ -80,7 +80,7 @@ async fn generate_problem(
     // 调用DeepSeek API
     let client = reqwest::Client::new();
     let prompt = format!(
-        "你是一个小学数学老师，需要为小学生生成一个简单的几何说理练习。难度级别：{}。
+        "你是一个小学数学老师，需要为小学生生成一个简单的几何说理练习。主题：{}。难度级别：{}。
         
         请返回一个JSON对象，包含以下字段：
         1. title: 练习标题
