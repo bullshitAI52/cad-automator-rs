@@ -32,7 +32,6 @@ const ProofEditor: React.FC = () => {
     const geometrySymbols: GeometrySymbol[] = [
         { symbol: '∠', name: '角', latex: '\\angle' },
         { symbol: '△', name: '三角形', latex: '\\triangle' },
-        { symbol: '≅', name: '全等', latex: '\\cong' },
         { symbol: '⊥', name: '垂直', latex: '\\perp' },
         { symbol: '∥', name: '平行', latex: '\\parallel' },
         { symbol: '°', name: '度', latex: '^{\\circ}' },
@@ -43,36 +42,30 @@ const ProofEditor: React.FC = () => {
         { symbol: '=', name: '等于', latex: '=' },
         { symbol: '≠', name: '不等于', latex: '\\neq' },
         { symbol: '≈', name: '约等于', latex: '\\approx' },
-        { symbol: '∞', name: '无穷', latex: '\\infty' },
-        { symbol: '√', name: '根号', latex: '\\sqrt{}' },
         { symbol: 'π', name: '圆周率', latex: '\\pi' },
     ];
 
     // 证明模板
     const proofTemplates = [
         {
-            name: '三角形全等证明',
+            name: '三角形内角和',
             steps: [
-                { because: 'AB = DE', therefore: '对应边相等' },
-                { because: '∠A = ∠D', therefore: '对应角相等' },
-                { because: 'AC = DF', therefore: '对应边相等' },
-                { because: '三边对应相等', therefore: '△ABC ≅ △DEF (SSS)' }
+                { because: '三角形三个角加起来是180°', therefore: '∠A + ∠B + ∠C = 180°' },
+                { because: '∠A = 60°，∠B = 70°', therefore: '∠C = 180° - 60° - 70° = 50°' }
             ]
         },
         {
-            name: '平行线性质',
+            name: '长方形周长',
             steps: [
-                { because: 'AB ∥ CD', therefore: '同位角相等' },
-                { because: '∠1 = ∠2', therefore: '内错角相等' },
-                { because: '∠2 + ∠3 = 180°', therefore: '同旁内角互补' }
+                { because: '长8厘米，宽5厘米', therefore: '长方形周长 = (长 + 宽) × 2' },
+                { because: '(8 + 5) × 2 = 26', therefore: '周长是26厘米' }
             ]
         },
         {
-            name: '勾股定理',
+            name: '正方形面积',
             steps: [
-                { because: '△ABC是直角三角形', therefore: '∠C = 90°' },
-                { because: 'a² + b² = c²', therefore: '勾股定理成立' },
-                { because: '已知a=3, b=4', therefore: 'c = √(3²+4²) = 5' }
+                { because: '边长是6厘米', therefore: '正方形面积 = 边长 × 边长' },
+                { because: '6 × 6 = 36', therefore: '面积是36平方厘米' }
             ]
         }
     ];
@@ -260,10 +253,10 @@ const ProofEditor: React.FC = () => {
                                     className="w-full p-2 border border-slate-300 rounded-lg"
                                 >
                                     <option value="三角形">三角形</option>
-                                    <option value="四边形">四边形</option>
+                                    <option value="长方形">长方形</option>
+                                    <option value="正方形">正方形</option>
+                                    <option value="平行四边形">平行四边形</option>
                                     <option value="圆">圆</option>
-                                    <option value="平行线">平行线</option>
-                                    <option value="相似">相似</option>
                                 </select>
                             </div>
                             <div>
@@ -384,7 +377,7 @@ const ProofEditor: React.FC = () => {
                                                 onFocus={() => handleTextareaFocus(step.id, 'therefore')}
                                                 onBlur={handleTextareaBlur}
                                                 className="w-full h-32 p-3 border-2 border-red-300 rounded-lg resize-none focus:border-red-500 focus:outline-none bg-white"
-                                                placeholder="输入推导结论，如：△ABC ≅ △DEF, AB ∥ CD"
+                                                placeholder="输入推导结论，如：∠C = 50°, AB ∥ CD"
                                             />
                                         </div>
                                     </div>
