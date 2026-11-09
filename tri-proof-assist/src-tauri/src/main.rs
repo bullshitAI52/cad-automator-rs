@@ -26,41 +26,51 @@ async fn generate_problem(
         println!("未找到API Key，返回模拟数据");
         let mock_proof = match topic.as_str() {
             "三角形" => json!({
-                "title": "三角形全等证明示例",
-                "description": "已知：在△ABC和△DEF中，AB=DE，∠A=∠D，AC=DF。证明：△ABC≅△DEF。",
+                "title": "三角形内角和",
+                "description": "已知：三角形ABC中，∠A=60°，∠B=70°。求：∠C是多少度？",
                 "steps": [
-                    {"because": "AB = DE", "therefore": "对应边相等"},
-                    {"because": "∠A = ∠D", "therefore": "对应角相等"},
-                    {"because": "AC = DF", "therefore": "对应边相等"},
-                    {"because": "两边及其夹角对应相等", "therefore": "△ABC ≅ △DEF (SAS全等)"}
+                    {"because": "三角形三个角加起来是180°", "therefore": "∠A + ∠B + ∠C = 180°"},
+                    {"because": "∠A=60°，∠B=70°", "therefore": "∠C=180°-60°-70°=50°"}
                 ]
             }),
-            "四边形" => json!({
-                "title": "平行四边形性质证明",
-                "description": "已知：四边形ABCD中，AB∥CD且AB=CD。证明：ABCD是平行四边形。",
+            "长方形" => json!({
+                "title": "长方形周长",
+                "description": "已知：长方形长8厘米，宽5厘米。求：它的周长是多少厘米？",
                 "steps": [
-                    {"because": "AB ∥ CD", "therefore": "一组对边平行"},
-                    {"because": "AB = CD", "therefore": "这组对边相等"},
-                    {"because": "一组对边平行且相等", "therefore": "四边形ABCD是平行四边形"}
+                    {"because": "长方形周长=(长+宽)×2", "therefore": "(8+5)×2=26"},
+                    {"because": "长8厘米，宽5厘米", "therefore": "周长是26厘米"}
+                ]
+            }),
+            "正方形" => json!({
+                "title": "正方形面积",
+                "description": "已知：正方形边长是6厘米。求：它的面积是多少平方厘米？",
+                "steps": [
+                    {"because": "正方形面积=边长×边长", "therefore": "6×6=36"},
+                    {"because": "边长是6厘米", "therefore": "面积是36平方厘米"}
+                ]
+            }),
+            "平行四边形" => json!({
+                "title": "认识平行四边形",
+                "description": "观察下面的图形，它有四条边，对边平行而且相等。说一说：它是什么图形？",
+                "steps": [
+                    {"because": "它有四条边", "therefore": "它是一个四边形"},
+                    {"because": "它的对边平行而且相等", "therefore": "它是一个平行四边形"}
                 ]
             }),
             "圆" => json!({
-                "title": "圆周角定理",
-                "description": "已知：在⊙O中，弧AB所对的圆周角是∠ACB，圆心角是∠AOB。证明：∠ACB = 1/2∠AOB。",
+                "title": "圆的周长",
+                "description": "已知：一个圆的直径是6厘米。求：它的周长是多少厘米？（π取3.14）",
                 "steps": [
-                    {"because": "连接OC", "therefore": "构造两个三角形"},
-                    {"because": "OA=OC=OB", "therefore": "都是半径，相等"},
-                    {"because": "等腰三角形底角相等", "therefore": "可以推导角度关系"},
-                    {"because": "三角形内角和180°", "therefore": "∠ACB = 1/2∠AOB"}
+                    {"because": "圆的周长=π×直径", "therefore": "3.14×6=18.84"},
+                    {"because": "直径是6厘米", "therefore": "周长是18.84厘米"}
                 ]
             }),
             _ => json!({
-                "title": "几何证明示例",
-                "description": format!("这是一个关于{}的证明示例。请按照'因为→所以'的格式填写证明步骤。", topic),
+                "title": "认识直角",
+                "description": "观察下面的角，它是90°。说一说：它是什么角？",
                 "steps": [
-                    {"because": "填写已知条件", "therefore": "填写推导结论"},
-                    {"because": "使用几何定理", "therefore": "得到中间结论"},
-                    {"because": "综合以上结论", "therefore": "证明完成"}
+                    {"because": "这个角是90°", "therefore": "它是一个直角"},
+                    {"because": "直角的两条边互相垂直", "therefore": "可以用三角尺检验"}
                 ]
             }),
         };
@@ -70,28 +80,29 @@ async fn generate_problem(
     // 调用DeepSeek API
     let client = reqwest::Client::new();
     let prompt = format!(
-        "你是一个几何老师，需要为初中生生成一个关于{}的几何证明思路。难度级别：{}。
+        "你是一个小学数学老师，需要为小学生生成一个简单的几何说理练习。难度级别：{}。
         
         请返回一个JSON对象，包含以下字段：
-        1. title: 证明标题
-        2. description: 证明描述（已知条件和要证明的结论）
-        3. steps: 证明步骤数组，每个步骤包含：
+        1. title: 练习标题
+        2. description: 题目（已知条件和要解决的问题，用小学生能看懂的话）
+        3. steps: 说理步骤数组，每个步骤包含：
            - because: '因为'部分（已知条件或上一步结论）
            - therefore: '所以'部分（推导出的结论）
         
         要求：
-        1. 步骤数量：3-5个
-        2. 使用中文
-        3. 包含几何符号如∠、△、≅、⊥、∥等
-        4. 适合初中生理解
+        1. 步骤数量：2-4个
+        2. 用简单的中文，句子要短
+        3. 只用小学数学知识：认识图形、角、周长、面积，不要用全等、勾股定理、根号、相似、圆周角这些初中内容
+        4. 数字要简单，适合口算
+        5. 适合小学生理解
         
         示例格式：
         {{
-          \"title\": \"三角形全等证明\",
-          \"description\": \"已知：AB=DE, ∠A=∠D, AC=DF。证明：△ABC≅△DEF。\",
+          \"title\": \"三角形内角和\",
+          \"description\": \"已知：三角形ABC中，∠A=60°，∠B=70°。求：∠C是多少度？\",
           \"steps\": [
-            {{\"because\": \"AB = DE\", \"therefore\": \"对应边相等\"}},
-            {{\"because\": \"∠A = ∠D\", \"therefore\": \"对应角相等\"}}
+            {{\"because\": \"三角形三个角加起来是180°\", \"therefore\": \"∠A + ∠B + ∠C = 180°\"}},
+            {{\"because\": \"∠A=60°，∠B=70°\", \"therefore\": \"∠C=180°-60°-70°=50°\"}}
           ]
         }}",
         topic, difficulty
@@ -110,7 +121,6 @@ async fn generate_problem(
         .send()
         .await
         .map_err(|e| e.to_string())?;
-
     if res.status().is_success() {
         let response_text = res.text().await.map_err(|e| e.to_string())?;
 
