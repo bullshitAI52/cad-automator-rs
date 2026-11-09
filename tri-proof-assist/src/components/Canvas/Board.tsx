@@ -53,7 +53,7 @@ const Board: React.FC = () => {
                 { leftSymbol: '△', leftText: 'ABC', relation: '=', rightSymbol: '△', rightText: 'DEF' }
             ],
             thereforeExpressions: [
-                { leftSymbol: '△', leftText: 'ABC', relation: '≅', rightSymbol: '△', rightText: 'DEF' }
+                { leftSymbol: '△', leftText: 'ABC', relation: '=', rightSymbol: '△', rightText: 'DEF' }
             ]
         }
     ]);
@@ -73,9 +73,7 @@ const Board: React.FC = () => {
         // 角度
         { symbol: '∠', name: '角', latex: '\\angle', category: 'angle' },
         { symbol: '°', name: '度', latex: '^{\\circ}', category: 'angle' },
-        { symbol: '′', name: '分', latex: "'", category: 'angle' },
-        { symbol: '″', name: '秒', latex: '"', category: 'angle' },
-
+        
         // 线段
         { symbol: '—', name: '线段', latex: '\\overline{}', category: 'line' },
         { symbol: 'AB', name: '线段AB', latex: '\\overline{AB}', category: 'line' },
@@ -85,7 +83,6 @@ const Board: React.FC = () => {
         { symbol: '=', name: '等于', latex: '=', category: 'relation' },
         { symbol: '≠', name: '不等于', latex: '\\neq', category: 'relation' },
         { symbol: '≈', name: '约等于', latex: '\\approx', category: 'relation' },
-        { symbol: '≅', name: '全等', latex: '\\cong', category: 'relation' },
         { symbol: '⊥', name: '垂直', latex: '\\perp', category: 'relation' },
         { symbol: '∥', name: '平行', latex: '\\parallel', category: 'relation' },
         { symbol: '→', name: '推出', latex: '\\Rightarrow', category: 'relation' },
@@ -93,10 +90,8 @@ const Board: React.FC = () => {
         // 其他
         { symbol: '∵', name: '因为', latex: '\\because', category: 'other' },
         { symbol: '∴', name: '所以', latex: '\\therefore', category: 'other' },
-        { symbol: '√', name: '根号', latex: '\\sqrt{}', category: 'other' },
         { symbol: 'π', name: '圆周率', latex: '\\pi', category: 'other' },
-        { symbol: '∞', name: '无穷', latex: '\\infty', category: 'other' },
-
+        
         // 文字
         { symbol: '中文字', name: '中文字', latex: '\\text{}', category: 'text' },
         { symbol: '角度', name: '角度', latex: '\\angle', category: 'text' },
@@ -116,29 +111,25 @@ const Board: React.FC = () => {
     // 证明模板
     const proofTemplates = [
         {
-            name: '三角形全等证明',
+            name: '三角形内角和',
             steps: [
-                { because: 'AB = DE', therefore: '对应边相等' },
-                { because: '∠A = ∠D', therefore: '对应角相等' },
-                { because: 'AC = DF', therefore: '对应边相等' },
-                { because: '三边对应相等', therefore: '△ABC ≅ △DEF (SSS)' }
-            ]
+                { because: '三角形三个角加起来是180°', therefore: '∠A + ∠B + ∠C = 180°' },
+                { because: '∠A = 60°，∠B = 70°', therefore: '∠C = 180° - 60° - 70° = 50°' }
+                
         },
         {
-            name: '平行线性质',
+            name: '长方形周长',
             steps: [
-                { because: 'AB ∥ CD', therefore: '同位角相等' },
-                { because: '∠1 = ∠2', therefore: '内错角相等' },
-                { because: '∠2 + ∠3 = 180°', therefore: '同旁内角互补' }
-            ]
+                { because: '长8厘米，宽5厘米', therefore: '长方形周长 = (长 + 宽) × 2' },
+                { because: '(8 + 5) × 2 = 26', therefore: '周长是26厘米' }
+                
         },
         {
-            name: '勾股定理',
+            name: '正方形面积',
             steps: [
-                { because: '△ABC是直角三角形', therefore: '∠C = 90°' },
-                { because: 'a² + b² = c²', therefore: '勾股定理成立' },
-                { because: '已知a=3, b=4', therefore: 'c = √(3²+4²) = 5' }
-            ]
+                { because: '边长是6厘米', therefore: '正方形面积 = 边长 × 边长' },
+                { because: '6 × 6 = 36', therefore: '面积是36平方厘米' }
+                
         }
     ];
 
@@ -163,7 +154,7 @@ const Board: React.FC = () => {
         '∠___', '∠A', '∠B',
         '△ABC', '△___',
         '___°', '90°',
-        '≅', '⊥', '∥'
+        '⊥', '∥'
     ];
 
     const handleImageImport = async () => {
@@ -788,7 +779,6 @@ const Board: React.FC = () => {
                                                                 <option value="=">=</option>
                                                                 <option value="≠">≠</option>
                                                                 <option value="≈">≈</option>
-                                                                <option value="≅">≅</option>
                                                                 <option value="⊥">⊥</option>
                                                                 <option value="∥">∥</option>
                                                                 <option value="→">→</option>
@@ -897,7 +887,6 @@ const Board: React.FC = () => {
                                                                 <option value="=">=</option>
                                                                 <option value="≠">≠</option>
                                                                 <option value="≈">≈</option>
-                                                                <option value="≅">≅</option>
                                                                 <option value="⊥">⊥</option>
                                                                 <option value="∥">∥</option>
                                                                 <option value="→">→</option>
