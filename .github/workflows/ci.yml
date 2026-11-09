@@ -57,16 +57,16 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            artifact_name: image-info-tool-linux-x86_64.tar.gz
-            binary_name: image-info-tool
+            artifact_name: tri-proof-assist-linux-x86_64.tar.gz
+            binary_name: tri-proof-assist
             asset_content_type: application/gzip
           - os: macos-latest
-            artifact_name: image-info-tool-macos-x86_64.tar.gz
-            binary_name: image-info-tool
+            artifact_name: tri-proof-assist-macos-x86_64.tar.gz
+            binary_name: tri-proof-assist
             asset_content_type: application/gzip
           - os: windows-latest
-            artifact_name: image-info-tool-windows-x86_64.zip
-            binary_name: image-info-tool.exe
+            artifact_name: tri-proof-assist-windows-x86_64.zip
+            binary_name: tri-proof-assist.exe
             asset_content_type: application/zip
 
     runs-on: ${{ matrix.os }}
