@@ -19,6 +19,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tri-proof-assist/src-tauri
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -54,6 +57,9 @@ jobs:
             asset_content_type: application/zip
 
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: tri-proof-assist/src-tauri
     steps:
       - uses: actions/checkout@v4
       
